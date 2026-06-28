@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-// Main app entry point.
-// This launches ContentView when the app starts.
+// Main entry point of the application.
+// This file starts the iOSApp3 Museum Navigation app.
 @main
 struct iOSApp3App: App {
     var body: some Scene {

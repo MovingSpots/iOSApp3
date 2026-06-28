@@ -7,15 +7,15 @@
 
 import Foundation
 
-// Main API response.
-// The Cleveland Museum API returns artwork records inside a "data" array.
+// This model represents the full API response.
+// The Cleveland Museum API returns artwork records inside "data".
 struct ArtworkResponse: Codable {
     let data: [Artwork]
 }
 
-// Artwork model.
-// Codable allows Swift to decode JSON into this structure.
-// Identifiable allows this model to work inside SwiftUI List.
+// This model represents one artwork item.
+// Codable decodes JSON.
+// Identifiable allows SwiftUI List to display each artwork.
 struct Artwork: Codable, Identifiable {
     let id: Int
     let title: String?
@@ -40,17 +40,17 @@ struct Artwork: Codable, Identifiable {
     }
 }
 
-// Image object from the API.
+// Image data from API.
 struct ArtworkImages: Codable {
     let web: ImageInfo?
 }
 
-// Web image information.
+// Web image URL.
 struct ImageInfo: Codable {
     let url: String?
 }
 
-// Artist / creator information.
+// Creator / artist data.
 struct Creator: Codable, Identifiable {
     var id: String {
         description ?? UUID().uuidString

@@ -9,15 +9,15 @@ import Foundation
 import SwiftUI
 import Combine
 
-// ViewModel connects the API service to the SwiftUI screen.
-// @MainActor ensures UI updates happen safely on the main thread.
+// ViewModel connects API data with SwiftUI screens.
+// @MainActor keeps UI updates on the main thread.
 @MainActor
 class ArtworkViewModel: ObservableObject {
     
-    // List of artworks shown in the app.
+    // Artworks displayed in the app.
     @Published var artworks: [Artwork] = []
     
-    // Search text typed by the user.
+    // Search word entered by user.
     @Published var searchText: String = "painting"
     
     // Loading and error states.
@@ -26,18 +26,29 @@ class ArtworkViewModel: ObservableObject {
     
     private let apiService = MuseumAPIService()
     
-    // Loads artworks from the online API.
+    // Loads artworks from the API.
     func loadArtworks() async {
         isLoading = true
         errorMessage = nil
         
         do {
             artworks = try await apiService.searchArtworks(searchText: searchText)
+            
+            if artworks.isEmpty {
+                errorMessage = "No artworks found. Try another search word."
+            }
+            
         } catch {
-            errorMessage = "Unable to load museum data. Please check internet connection or API URL."
+            errorMessage = "Unable to load museum data. Please check your internet connection."
             print("API Error: \(error.localizedDescription)")
         }
         
         isLoading = false
+    }
+    
+    // Clears search and returns to default result.
+    func resetSearch() async {
+        searchText = "painting"
+        await loadArtworks()
     }
 }

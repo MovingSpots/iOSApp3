@@ -7,28 +7,34 @@
 
 import Foundation
 
-// This service is responsible for contacting the online API.
-// It downloads JSON data and converts it into Swift models.
+// This service handles the API request.
+// It downloads museum artwork data from the internet.
 class MuseumAPIService {
     
-    // Searches artworks using the Cleveland Museum of Art Open Access API.
     func searchArtworks(searchText: String) async throws -> [Artwork] {
         
-        // Convert spaces and special characters into a safe URL format.
-        let encodedSearch = searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "painting"
+        // Encode search text safely for URL use.
+        let encodedSearch = searchText.addingPercentEncoding(
+            withAllowedCharacters: .urlQueryAllowed
+        ) ?? "painting"
         
-        // API URL.
-        // has_image=1 requests artworks that include images.
-        let urlString = "https://openaccess-api.clevelandart.org/api/artworks/?q=\(encodedSearch)&has_image=1&limit=20"
+        // Cleveland Museum of Art Open Access API.
+        let urlString = "https://openaccess-api.clevelandart.org/api/artworks/?q=\(encodedSearch)&has_image=1&limit=30"
         
         guard let url = URL(string: urlString) else {
             throw URLError(.badURL)
         }
         
-        // Download data from the API.
-        let (data, _) = try await URLSession.shared.data(from: url)
+        // Download data from API.
+        let (data, response) = try await URLSession.shared.data(from: url)
         
-        // Decode JSON into ArtworkResponse.
+        // Check HTTP response.
+        if let httpResponse = response as? HTTPURLResponse,
+           httpResponse.statusCode != 200 {
+            throw URLError(.badServerResponse)
+        }
+        
+        // Convert JSON into Swift model.
         let decodedResponse = try JSONDecoder().decode(ArtworkResponse.self, from: data)
         
         return decodedResponse.data
