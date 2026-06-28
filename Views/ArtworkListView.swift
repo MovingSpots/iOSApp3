@@ -9,16 +9,16 @@ import SwiftUI
 
 struct ArtworkListView: View {
     
-    // StateObject keeps the ViewModel alive while this screen is active.
+    // ViewModel stores API data and search state.
     @StateObject private var viewModel = ArtworkViewModel()
     
     var body: some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: 10) {
                 
-                // Search box.
+                // Search section.
                 HStack {
-                    TextField("Search artworks", text: $viewModel.searchText)
+                    TextField("Search artwork, artist, culture...", text: $viewModel.searchText)
                         .textFieldStyle(.roundedBorder)
                     
                     Button("Search") {
@@ -28,11 +28,20 @@ struct ArtworkListView: View {
                     }
                     .buttonStyle(.borderedProminent)
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.top)
+                
+                // Reset button.
+                Button("Reset to Paintings") {
+                    Task {
+                        await viewModel.resetSearch()
+                    }
+                }
+                .font(.caption)
                 
                 // Loading indicator.
                 if viewModel.isLoading {
-                    ProgressView("Loading museum data...")
+                    ProgressView("Loading museum artworks...")
                         .padding()
                 }
                 
@@ -40,10 +49,12 @@ struct ArtworkListView: View {
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
-                        .padding()
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
                 
-                // Artwork list.
+                // Main artwork list.
                 List(viewModel.artworks) { artwork in
                     NavigationLink {
                         ArtworkDetailView(artwork: artwork)
@@ -51,8 +62,16 @@ struct ArtworkListView: View {
                         ArtworkRowView(artwork: artwork)
                     }
                 }
+                .listStyle(.plain)
             }
             .navigationTitle("Museum Navigator")
+            .toolbar {
+                NavigationLink {
+                    AboutMuseumView()
+                } label: {
+                    Image(systemName: "info.circle")
+                }
+            }
             .task {
                 await viewModel.loadArtworks()
             }

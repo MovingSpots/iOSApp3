@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-// ContentView loads the main artwork list screen.
+// ContentView loads the main artwork list page.
 struct ContentView: View {
     var body: some View {
         ArtworkListView()
